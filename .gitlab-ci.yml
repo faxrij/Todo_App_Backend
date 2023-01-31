@@ -1,0 +1,25 @@
+image: maven:latest
+
+cache:
+  paths:
+    - .m2/repository/
+
+build:
+  stage: build
+  script:
+    - mvn compile
+
+test:
+  stage: test
+  script:
+    - mvn verify
+
+deploy:
+  stage: deploy
+  artifacts:
+    expire_in: 1 month
+  paths:
+    - target/*.jar
+  script:
+    - mvn clean package -B
+    - ls target/classes/
