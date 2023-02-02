@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+
 import com.example.demo.helper.TokenHelper;
 import com.example.demo.model.entity.Todo;
 import com.example.demo.model.request.TodoForm;
@@ -33,15 +34,16 @@ class TodoControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+    private final String userToken = TokenHelper.USER_TOKEN_WITH_ID_2;
+
 
     @Test
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
-            value = {"/todoController/add_todo.sql"})
+            value = {"/todoController/delete_todo.sql", "/todoController/add_todo.sql"})
     @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD,
             value = {"/todoController/delete_todo.sql"})
     public void givenUserToken_whenGetTodos_thenReturnListOfTodoResponsesAndResponseCodeIs200() {
         //GIVEN
-        String userToken = TokenHelper.USER_TOKEN_WITH_ID_2;
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + userToken);
 
@@ -68,7 +70,6 @@ class TodoControllerTest {
             value = {"/todoController/delete_todo.sql"})
     public void givenUserToken_whenGetTodosWithParam_thenReturnListOfTodoResponsesAndResponseCodeIs200() {
         //GIVEN
-        String userToken = TokenHelper.USER_TOKEN_WITH_ID_2;
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + userToken);
 
@@ -105,7 +106,6 @@ class TodoControllerTest {
             value = {"/todoController/delete_todo.sql"})
     void givenUserToken_whenAddTodo_thenReturnResponseCodeIs201Created() {
         //GIVEN
-        String userToken = TokenHelper.USER_TOKEN_WITH_ID_2;
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + userToken);
 
@@ -133,7 +133,6 @@ class TodoControllerTest {
             value = {"/todoController/delete_todo.sql"})
     void givenUserToken_whenUpdateTodo_thenReturnResponseCodeIs200() {
         // GIVEN
-        String userToken = TokenHelper.USER_TOKEN_WITH_ID_2;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + userToken);
 
@@ -161,12 +160,11 @@ class TodoControllerTest {
 
     @Test
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
-            value = {"/todoController/add_todo.sql", "/todoController/add_one_user.sql"})
+            value = {"/todoController/add_todo.sql", "/todoController/delete_user.sql", "/todoController/add_one_user.sql"})
     @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD,
             value = {"/todoController/delete_todo.sql"})
     void givenUserToken_whenDeleteTodo_thenReturnResponseCodeIs200() {
         //GIVEN
-        String userToken = TokenHelper.USER_TOKEN_WITH_ID_2;
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + userToken);
 
