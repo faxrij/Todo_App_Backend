@@ -18,8 +18,6 @@ deploy:
   stage: deploy
   artifacts:
     expire_in: 1 month
-  paths:
-    - target/*.jar
   script:
     - mvn clean package -B
     - ls target/classes/

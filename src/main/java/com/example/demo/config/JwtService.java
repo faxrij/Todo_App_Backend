@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.exception.BusinessException;
+import com.example.demo.exception.UnathorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -46,7 +46,7 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String userName = extractUsername(token);
         if(isTokenExpired(token)){
-            throw new BusinessException("Token has expired");
+            throw new UnathorizedException("Token has expired");
         }
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }

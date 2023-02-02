@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.exception.BusinessException;
+import com.example.demo.exception.TodoAlreadyExistsException;
+import com.example.demo.exception.TodoDoesNotExistException;
 import com.example.demo.model.entity.Todo;
 import com.example.demo.model.request.UpdateTodoRequest;
 import com.example.demo.repository.TodoRepository;
@@ -68,7 +69,7 @@ class TodoServiceTest {
         when(todoRepository.existsById(todoId)).thenReturn(false);
 
         assertThatThrownBy(() -> underTest.getTodo(todoId))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(TodoDoesNotExistException.class)
                 .hasMessageContaining("Todo id with 1 does not exist");
 
     }
@@ -82,7 +83,7 @@ class TodoServiceTest {
         when(todoRepository.findById(todoId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> underTest.getTodo(todoId))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(TodoDoesNotExistException.class)
                 .hasMessageContaining("Todo id with 1 does not exist");
     }
 
@@ -124,7 +125,7 @@ class TodoServiceTest {
                 .willReturn(Optional.of(todo));
 
         assertThatThrownBy(() -> underTest.addTodo(todo))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(TodoAlreadyExistsException.class)
                         .hasMessageContaining("todo name exists");
 
         verify(todoRepository, never()).save(any());
@@ -137,7 +138,7 @@ class TodoServiceTest {
         when(todoRepository.findTodoById(todoId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> underTest.updateTodo(todoId, updateTodoRequest))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(TodoDoesNotExistException.class)
                 .hasMessageContaining("todo with id 1 does not exist");
     }
     @Test
@@ -173,7 +174,7 @@ class TodoServiceTest {
         Long todoId = 1L;
         when(todoRepository.existsById(todoId)).thenReturn(false);
         assertThatThrownBy(() -> underTest.deleteTodo(todoId))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(TodoDoesNotExistException.class)
                 .hasMessageContaining("Todo id with 1 does not exist");
     }
 }

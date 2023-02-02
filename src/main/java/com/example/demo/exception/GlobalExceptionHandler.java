@@ -1,41 +1,62 @@
 package com.example.demo.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.demo.model.response.ErrorModel;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import javax.validation.ValidationException;
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<String> handlyMyCustomException(BusinessException e) {
-        LOGGER.error("error occurred :", e);
-        return new ResponseEntity<>("SOMETHING UNEXPECTED HAPPENED: " + e.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorModel> handleBusinessException(BusinessException businessException) {
+        ErrorModel error = ErrorModel.builder()
+                .statusCode(businessException.getStatusCode())
+                .errorCode(businessException.getErrorCode())
+                .message(businessException.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.resolve(businessException.getStatusCode()));
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ValidationException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorModel> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
+        FieldError fieldError = methodArgumentNotValidException.getBindingResult().getFieldError();
+        ErrorModel error = ErrorModel.builder()
+                .statusCode(400)
+                .errorCode("Bad Request")
+                .message(fieldError.getDefaultMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.resolve(error.getStatusCode()));
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorModel> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException methodArgumentTypeMismatchException) {
+        ErrorModel error = ErrorModel.builder()
+                .statusCode(400)
+                .errorCode("Bad Request")
+                .message("Invalid type given")
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.resolve(error.getStatusCode()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorModel> defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
+        if (AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class).isPresent())
+            throw e;
+        ErrorModel error = ErrorModel.builder()
+                .statusCode(ErrorCode.internal_server_error.getHttpCode()) //500
+                .errorCode("Error")
+                .message(e.getLocalizedMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.resolve(500));
+
+    }
 }

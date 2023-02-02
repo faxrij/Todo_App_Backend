@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.exception.UnathorizedException;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,10 +34,15 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         System.out.println("SALAMki");
-        return config.getAuthenticationManager();
+        AuthenticationManager authenticationManager;
+        try {
+            authenticationManager = config.getAuthenticationManager();
+        } catch (Exception e) {
+            throw new UnathorizedException(e.getMessage());
+        }
+        return authenticationManager;
     }
 
     @Bean

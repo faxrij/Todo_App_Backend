@@ -1,13 +1,27 @@
 package com.example.demo.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class BusinessException extends RuntimeException {
-    public BusinessException(String message) {
-        super(message);
+public abstract class BusinessException extends RuntimeException {
+
+    private final ErrorCode errorCode;
+    private final String message;
+
+    public BusinessException(ErrorCode errorCode, String message) {
+        this.errorCode = errorCode;
+        this.message = message;
     }
 
+    public int getStatusCode() {
+        return errorCode.getHttpCode();
+    }
+
+    public String getErrorCode() {
+        return errorCode.name();
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
 
 }

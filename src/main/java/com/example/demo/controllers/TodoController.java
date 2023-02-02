@@ -7,6 +7,7 @@ import com.example.demo.model.request.UpdateTodoRequest;
 import com.example.demo.model.response.TodoDto;
 import com.example.demo.services.TodoService;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,6 +38,7 @@ public class TodoController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public void addTodo(@RequestBody @NotNull TodoForm todoForm){
         Todo todo = todoConverter.formToEntity(todoForm);
         this.todoService.addTodo(todo);
