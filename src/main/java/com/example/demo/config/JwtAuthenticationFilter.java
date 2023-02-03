@@ -5,6 +5,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.example.demo.exception.UnathorizedException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
+                else{
+                    throw new UnathorizedException("token is not valid");
+                }
+            }
+            else{
+                throw new UnathorizedException("adfagf");
             }
         }
         filterChain.doFilter(request, response);

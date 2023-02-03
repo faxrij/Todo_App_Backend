@@ -1,18 +1,47 @@
-image: maven:latest
+
+variables:
+  CI_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+  CI_BASE_IMAGE: ${CI_REGISTRY_IMAGE}/base:latest
 
 cache:
   paths:
     - .m2/repository/
 
 build:
+  image: docker:18.09
   stage: build
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: '/certs'
+    DOCKER_DRIVER: overlay2
+    before_script:
+      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
   script:
-    - mvn compile
+    - docker build
+      --network host
+      --tag $CI_REGISTRY_IMAGE:$CI_IMAGE_TAG
+      .
+    - docker tag $CI_REGISTRY_IMAGE:$CI_IMAGE_TAG $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:$CI_IMAGE_TAG
 
 test:
   stage: test
+  services:
+    - docker:18.09-dind
+  variables:
+    SPRING_PROFILES_ACTIVE: local
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ''
+    DOCKER_DRIVER: overlay2
   script:
     - mvn verify
+  artifacts:
+    when: on_failure
+    paths:
+      - target/surefire-reports
 
 deploy:
   stage: deploy
