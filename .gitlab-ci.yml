@@ -16,9 +16,9 @@ stages:
   - build
   - docker
 
-cache:
-  paths:
-    - .m2/repository/
+# cache:
+#   paths:
+#     - .m2/repository/
 
 maven-build:
   image: maven:3.8.3-openjdk-17
