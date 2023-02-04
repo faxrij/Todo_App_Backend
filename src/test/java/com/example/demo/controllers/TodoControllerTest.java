@@ -39,7 +39,7 @@ class TodoControllerTest {
 
     @Test
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
-            value = {"/todoController/delete_todo.sql", "/todoController/add_todo.sql"})
+            value = {"/todoController/delete_user.sql","/todoController/delete_todo.sql", "/todoController/add_todo.sql","/todoController/add_one_user.sql"})
     @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD,
             value = {"/todoController/delete_todo.sql"})
     public void givenUserToken_whenGetTodos_thenReturnListOfTodoResponsesAndResponseCodeIs200() {

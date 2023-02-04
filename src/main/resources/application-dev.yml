@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    username: postgres
+    password: mysecretpassword2
+    url: jdbc:postgresql://localhost:5432/todo
+  jpa:
+    generate-ddl: true

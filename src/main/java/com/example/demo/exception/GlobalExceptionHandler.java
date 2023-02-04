@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,12 +24,13 @@ public class GlobalExceptionHandler {
                 .errorCode(businessException.getErrorCode())
                 .message(businessException.getMessage())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.resolve(businessException.getStatusCode()));
+        return new ResponseEntity<>(error, Objects.requireNonNull(HttpStatus.resolve(businessException.getStatusCode())));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorModel> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
         FieldError fieldError = methodArgumentNotValidException.getBindingResult().getFieldError();
+        assert fieldError != null;
         ErrorModel error = ErrorModel.builder()
                 .statusCode(400)
                 .errorCode("Bad Request")
