@@ -1,8 +1,6 @@
-stages:
-  - base
-  - test
-  - build
-  - deploy
+image: docker:latest
+services:
+  - docker:dind
 
 variables:
   DOCKER_DRIVER: overlay
@@ -10,13 +8,34 @@ variables:
   CI_REGISTRY_USER: faxrij
   APP_NAME: spring-boot-gitlab
   REPO: TODO_APP_BACKEND
-  CI_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
-  CI_BASE_IMAGE: ${CI_REGISTRY_IMAGE}/base:latest
+#  CI_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+#  CI_BASE_IMAGE: ${CI_REGISTRY_IMAGE}/base:latest
   CI_REGISTRY: registry.gitlab.com/faxrij/$REPO
+
+stages:
+  - build
+  - docker
 
 cache:
   paths:
     - .m2/repository/
+
+maven-build:
+  image: maven:3.8.3-openjdk-17
+  stage: build
+  script: "mvn package -B"
+  artifacts:
+    paths:
+      - target/*.jar
+
+
+docker-build:
+  stage: docker
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build -t $CI_REGISTRY .
+    - docker push $CI_REGISTRY
+
 
 #build:
 #  image: docker:18.09
