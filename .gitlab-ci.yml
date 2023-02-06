@@ -24,7 +24,7 @@ variables:
 #  - docker
 
 Test:
-  image: $CI_REGISTRY:latest
+  image: $CI_REGISTRY
   stage: test
   services:
     - docker:18.09-dind
